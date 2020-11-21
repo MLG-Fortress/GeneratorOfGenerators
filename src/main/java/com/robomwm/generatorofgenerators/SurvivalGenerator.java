@@ -5,12 +5,9 @@ import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -23,24 +20,40 @@ public class SurvivalGenerator extends ChunkGenerator
 {
     private Logger logger;
 
-    private String[] GeneratorPluginNames = new String[] {"CityWorld", "WellWorld", "MaxiWorld", "DungeonMaze"};
+    private int gridLength = 1;
+    private int cellSize;
 
-    Map<String, ChunkGenerator> generators = new HashMap<>();
+    private ArrayList<ChunkGenerator> generators = new ArrayList<>();
 
     public SurvivalGenerator(Plugin plugin, String worldName, String id)
     {
         this.logger = plugin.getLogger();
-        PluginManager pluginManager = plugin.getServer().getPluginManager();
         logger.info("Booting SurvivalGenerator");
 
-        for (String pluginName : GeneratorPluginNames)
+        plugin.reloadConfig();
+
+        if (id == null)
+            id = "default";
+
+        cellSize = plugin.getConfig().getConfigurationSection("cellSize").getInt(id);
+
+        for (String generatorName : plugin.getConfig().getStringList(id))
         {
-            Plugin genPlugin = pluginManager.getPlugin(pluginName);
-            if (!addGenerator(genPlugin, pluginName, worldName, id))
-            {
+            String[] splitName = generatorName.split(",");
+            String pluginName = splitName[0];
+            String configId = null;
+            if (splitName.length > 1)
+                configId = splitName[1];
+
+            Plugin genPlugin = plugin.getServer().getPluginManager().getPlugin(pluginName);
+            if (!addGenerator(genPlugin, pluginName, worldName, configId))
                 logger.severe("SurvivalGenerator: Failed to add " + pluginName);
-            }
         }
+
+        //Increase our square grid size until it's large enough to accommodate all generators
+        while (gridLength * gridLength < generators.size())
+            gridLength++;
+        logger.info("Using a " + gridLength + "x" + gridLength + " grid.");
     }
 
     private boolean addGenerator(Plugin plugin, String name, String worldName, String id)
@@ -52,33 +65,26 @@ public class SurvivalGenerator extends ChunkGenerator
             return false;
         }
 
-        return generators.put(name, plugin.getDefaultWorldGenerator(worldName, id)) == null;
+        return generators.add(plugin.getDefaultWorldGenerator(worldName, id));
     }
 
+    //Choose a generator based off chunk coordinates
     private ChunkGenerator getGenerator(int chunkX, int chunkZ)
     {
+        //This will mirror the grid across both x and y axes
+        chunkX = Math.abs(chunkX);
+        chunkZ = Math.abs(chunkZ);
+
+        //Convert chunk coordinates to our custom grid coordinates
         int regionX = chunkX / 128;
-        int regionZ = chunkZ / 128;
+        int regionZ = (chunkZ / 128) * gridLength;
+        int cellIndex = (regionX + regionZ) % (generators.size());
 
-        if (chunkX < 0)
-            regionX--;
-        if (chunkZ < 0)
-            regionZ--;
-
-        int section = Math.abs(regionX + regionZ) % (GeneratorPluginNames.length + 1); //another lazy name except this one idk what I should name it
         StackTraceElement e = Thread.currentThread().getStackTrace()[2];
-        logger.info("MD: x:" + chunkX + " z:" + chunkZ + " regionX:" + regionX + " regionZ:" + regionZ + " section:" + section + " trace:" + e.getClassName() + "#" + e.getMethodName() + "@" + e.getLineNumber());
+        logger.info("MD: x:" + chunkX + " z:" + chunkZ + " regionX:" + regionX + " regionZ:" + regionZ + " cellIndex:" + cellIndex + " trace:" + e.getClassName() + "#" + e.getMethodName() + "@" + e.getLineNumber());
+        logger.info("MD: using " + cellIndex + ": " + generators.get(cellIndex).getClass().getSimpleName());
 
-        if (GeneratorPluginNames.length <= section)
-        {
-//            logger.info("MD: using:NONE");
-//            return null;
-            logger.info("MD: using default:" + GeneratorPluginNames[section]);
-            return generators.get(GeneratorPluginNames[0]);
-        }
-
-        logger.info("MD: using:" + GeneratorPluginNames[section]);
-        return generators.get(GeneratorPluginNames[section]);
+        return generators.get(cellIndex);
     }
 
     @Override
