@@ -1,0 +1,13 @@
+name: GeneratorOfGenerators
+version: '${project.version}-${git.commit.id.abbrev}'
+author: RoboMWM
+main: com.robomwm.generatorofgenerators.GeneratorOfGenerators
+api-version: '1.16'
+load: STARTUP
+softdepend:
+  - CityWorld
+  - WellWorld
+  - MaxiWorld
+  - DungeonMaze
+loadbefore:
+  - Multiverse-Core
