@@ -71,8 +71,10 @@ public class SurvivalGenerator extends ChunkGenerator
 
         if (GeneratorPluginNames.length <= section)
         {
-            logger.info("MD: using:NONE");
-            return null;
+//            logger.info("MD: using:NONE");
+//            return null;
+            logger.info("MD: using default:" + GeneratorPluginNames[section]);
+            return generators.get(GeneratorPluginNames[0]);
         }
 
         logger.info("MD: using:" + GeneratorPluginNames[section]);
