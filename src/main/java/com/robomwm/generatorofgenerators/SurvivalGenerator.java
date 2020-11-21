@@ -62,12 +62,12 @@ public class SurvivalGenerator extends ChunkGenerator
 
         if (chunkX < 0)
             regionX--;
-        if (regionZ < 0)
+        if (chunkZ < 0)
             regionZ--;
 
         int section = Math.abs(regionX + regionZ) % (GeneratorPluginNames.length + 1); //another lazy name except this one idk what I should name it
         StackTraceElement e = Thread.currentThread().getStackTrace()[2];
-        logger.info("MD: x" + chunkX + " z:" + chunkZ + " regionX:" + regionX + " regionZ:" + regionZ + " section:" + section + " trace:" + e.getClassName() + "#" + e.getMethodName() + "@" + e.getLineNumber());
+        logger.info("MD: x:" + chunkX + " z:" + chunkZ + " regionX:" + regionX + " regionZ:" + regionZ + " section:" + section + " trace:" + e.getClassName() + "#" + e.getMethodName() + "@" + e.getLineNumber());
 
         if (GeneratorPluginNames.length <= section)
         {
