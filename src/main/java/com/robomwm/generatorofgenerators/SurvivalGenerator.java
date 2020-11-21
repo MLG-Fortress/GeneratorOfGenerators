@@ -65,6 +65,11 @@ public class SurvivalGenerator extends ChunkGenerator
             return false;
         }
 
+        if (id == null)
+            logger.info("Adding generator " + name);
+        else
+            logger.info("Adding generator " + name + " with id " + id);
+
         return generators.add(plugin.getDefaultWorldGenerator(worldName, id));
     }
 
