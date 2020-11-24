@@ -21,7 +21,7 @@ public class GeneratorOfGenerators extends JavaPlugin
         defaultGenerators.add("CityWorld,PILLARS");
         defaultGenerators.add("WellWorld");
         getConfig().addDefault("default", defaultGenerators);
-        getConfig().addDefault("cellSize.default", "128");
+        getConfig().addDefault("cellSize.default", "64");
         getConfig().options().copyDefaults(true);
         saveConfig();
     }
