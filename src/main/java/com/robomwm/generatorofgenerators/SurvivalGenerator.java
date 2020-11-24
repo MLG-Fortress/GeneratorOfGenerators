@@ -81,8 +81,8 @@ public class SurvivalGenerator extends ChunkGenerator
         chunkZ = Math.abs(chunkZ);
 
         //Convert chunk coordinates to our custom grid coordinates
-        int regionX = chunkX / 128;
-        int regionZ = (chunkZ / 128) * gridLength;
+        int regionX = chunkX / cellSize;
+        int regionZ = (chunkZ / cellSize) * gridLength;
         int cellIndex = (regionX + regionZ) % (generators.size());
 
         StackTraceElement e = Thread.currentThread().getStackTrace()[2];
