@@ -85,7 +85,7 @@ public class SurvivalGenerator extends ChunkGenerator
         int regionZ = (chunkZ / cellSize) * gridLength;
         int cellIndex = (regionX + regionZ) % (generators.size());
 
-        StackTraceElement e = Thread.currentThread().getStackTrace()[2];
+        StackTraceElement e = Thread.currentThread().getStackTrace()[3];
         logger.info("MD: using " + cellIndex + ": " + generators.get(cellIndex).getClass().getSimpleName() + " x:" + chunkX + " z:" + chunkZ + " regionX:" + regionX + " regionZ:" + regionZ + " cellIndex:" + cellIndex + " trace:" + e.getClassName() + "#" + e.getMethodName() + "@" + e.getLineNumber());
 
         return generators.get(cellIndex);
