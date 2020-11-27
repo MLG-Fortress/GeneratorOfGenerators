@@ -11,3 +11,11 @@ softdepend:
   - DungeonMaze
 loadbefore:
   - Multiverse-Core
+commands:
+  getChunkAt:
+    usage: /getChunkAt <world> <x> <z>
+    permission: GeneratorOfGenerators.getChunkAt
+permissions:
+  GeneratorOfGenerators.getChunkAt:
+    default: op
+

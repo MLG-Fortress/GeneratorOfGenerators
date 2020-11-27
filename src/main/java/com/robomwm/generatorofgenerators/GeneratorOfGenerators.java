@@ -1,5 +1,9 @@
 package com.robomwm.generatorofgenerators;
 
+import org.bukkit.ChatColor;
+import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -40,5 +44,22 @@ public class GeneratorOfGenerators extends JavaPlugin
             default:
                 return new SurvivalGenerator(this, worldName, id);
         }
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+    {
+        if (args.length < 3)
+            return false;
+
+        World world = getServer().getWorld(args[0]);
+        if (world == null)
+        {
+            sender.sendMessage(ChatColor.RED + "World is null");
+            return false;
+        }
+
+        world.getChunkAt(Integer.parseInt(args[1]), Integer.parseInt(args[2])); //not async so we can test spigot and etc. And it's a debug command anyway.
+        return true;
     }
 }
