@@ -50,6 +50,9 @@ public class SurvivalGenerator extends ChunkGenerator
                 logger.severe("SurvivalGenerator: Failed to add " + pluginName);
         }
 
+        if (generators.isEmpty())
+            throw new RuntimeException("No Generators Found, please check config.yml and generator plugins.");
+
         //Increase our square grid size until it's large enough to accommodate all generators
         while (gridLength * gridLength < generators.size())
             gridLength++;
@@ -105,10 +108,10 @@ public class SurvivalGenerator extends ChunkGenerator
     public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome)
     {
         ChunkGenerator generator = getGenerator(x, z);
-        //if (generator != null)
+        if (generator != null)
             return generator.generateChunkData(world, random, x, z, biome);
 
-        //return super.createVanillaChunkData(world, x, z);
+        return super.createVanillaChunkData(world, x, z);
     }
 
     @Override
@@ -133,7 +136,7 @@ public class SurvivalGenerator extends ChunkGenerator
 
     //Probably not safe if we use the vanilla generator anyways, but according to electronicboy:
     //[17:20:23] +DiscordBot: <zzzCat> yes, but no real effect right now
-    //@Override
+    @Override
     public boolean isParallelCapable()
     {
 //        for (ChunkGenerator generator : generators.values())
@@ -150,19 +153,19 @@ public class SurvivalGenerator extends ChunkGenerator
     //Yup it messes 'em up alright, especially caves
     //gonna disable tho cuz generating vanilla features consume quite a bit
 
-    //@Override
+    @Override
     public boolean shouldGenerateCaves()
     {
         return false;
     }
 
-    //@Override
+    @Override
     public boolean shouldGenerateDecorations()
     {
         return false;
     }
 
-    //@Override
+    @Override
     public boolean shouldGenerateStructures()
     {
         return false;
