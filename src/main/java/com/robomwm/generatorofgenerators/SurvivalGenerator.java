@@ -136,6 +136,7 @@ public class SurvivalGenerator extends ChunkGenerator
 
     //Probably not safe if we use the vanilla generator anyways, but according to electronicboy:
     //[17:20:23] +DiscordBot: <zzzCat> yes, but no real effect right now
+    //May be cause of stack overflow tho https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse/src/main/java/org/bukkit/craftbukkit/generator/CustomChunkGenerator.java#118
     @Override
     public boolean isParallelCapable()
     {
@@ -146,7 +147,7 @@ public class SurvivalGenerator extends ChunkGenerator
 //        }
 //
 //        logger.info("isParallelCapable is true!!! :o Async away!!!!");
-        return true;
+        return false;
     }
 
     //I wonder how these will interfere with the other generators. Let's find out c:
