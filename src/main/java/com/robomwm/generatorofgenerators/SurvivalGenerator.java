@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class SurvivalGenerator extends ChunkGenerator
 {
     private Logger logger;
-
+    private Plugin plugin;
     private int gridLength = 1;
     private int cellSize;
 
@@ -27,6 +27,7 @@ public class SurvivalGenerator extends ChunkGenerator
 
     public SurvivalGenerator(Plugin plugin, String worldName, String id)
     {
+        this.plugin = plugin;
         this.logger = plugin.getLogger();
         logger.info("Booting SurvivalGenerator");
 
@@ -127,17 +128,32 @@ public class SurvivalGenerator extends ChunkGenerator
         @Override
         public void populate(World world, Random random, Chunk source)
         {
-            StackTraceElement[] e = Thread.currentThread().getStackTrace();
-            if (e.length > 900)
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            if (stackTrace.length > 900)
             {
-                logger.info("SG: Stack too large, terminating populator calls. Size: " + e.length);
+                logger.info("SG: Stack too large, terminating populator calls. Size: " + stackTrace.length);
                 return;
             }
 
             ChunkGenerator generator = getGenerator(source.getX(), source.getZ());
-            if (generator != null)
-                for(BlockPopulator populator : generator.getDefaultPopulators(world))
-                    populator.populate(world, random, source);
+            try
+            {
+                if (generator != null)
+                    for(BlockPopulator populator : generator.getDefaultPopulators(world))
+                        populator.populate(world, random, source);
+            }
+            catch (IllegalArgumentException e)
+            {
+                logger.info(e.getMessage());
+                int length = e.getStackTrace().length;
+                e.printStackTrace();
+                if (length > 5)
+                {
+                    String name = e.getStackTrace()[length - 4].getClassName();
+                    int line = e.getStackTrace()[length - 4].getLineNumber();
+                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "communicationconnector Populate errored: + " + e.getMessage() + ". I think it happened in " + name + " at line " + line);
+                }
+            }
         }
     }
 
