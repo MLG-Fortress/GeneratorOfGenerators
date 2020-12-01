@@ -127,6 +127,13 @@ public class SurvivalGenerator extends ChunkGenerator
         @Override
         public void populate(World world, Random random, Chunk source)
         {
+            StackTraceElement[] e = Thread.currentThread().getStackTrace();
+            if (e.length > 900)
+            {
+                logger.info("SG: Stack too large, terminating populator calls. Size: " + e.length);
+                return;
+            }
+
             ChunkGenerator generator = getGenerator(source.getX(), source.getZ());
             if (generator != null)
                 for(BlockPopulator populator : generator.getDefaultPopulators(world))
