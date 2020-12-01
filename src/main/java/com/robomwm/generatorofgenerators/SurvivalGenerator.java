@@ -147,11 +147,11 @@ public class SurvivalGenerator extends ChunkGenerator
                 logger.info(e.getMessage());
                 int length = e.getStackTrace().length;
                 e.printStackTrace();
-                if (length > 5)
+                if (length > 3)
                 {
-                    String name = e.getStackTrace()[length - 4].getClassName();
-                    int line = e.getStackTrace()[length - 4].getLineNumber();
-                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "communicationconnector Populate errored: + " + e.getMessage() + ". I think it happened in " + name + " at line " + line);
+                    String name = e.getStackTrace()[3].getClassName();
+                    int line = e.getStackTrace()[3].getLineNumber();
+                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "communicationconnector The " + name + " errored because of " + e.getMessage() + ". It happened at line " + line);
                 }
             }
         }
