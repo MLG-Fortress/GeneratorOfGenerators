@@ -136,24 +136,24 @@ public class SurvivalGenerator extends ChunkGenerator
             }
 
             ChunkGenerator generator = getGenerator(source.getX(), source.getZ());
-            try
-            {
                 if (generator != null)
                     for(BlockPopulator populator : generator.getDefaultPopulators(world))
-                        populator.populate(world, random, source);
-            }
-            catch (IllegalArgumentException e)
-            {
-                logger.info(e.getMessage());
-                int length = e.getStackTrace().length;
-                e.printStackTrace();
-                if (length > 3)
-                {
-                    String name = e.getStackTrace()[3].getClassName();
-                    int line = e.getStackTrace()[3].getLineNumber();
-                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "communicationconnector The " + name + " errored because of " + e.getMessage() + ". It happened at line " + line);
-                }
-            }
+                        try
+                        {
+                            populator.populate(world, random, source);
+                        }
+                        catch (IllegalArgumentException e)
+                        {
+                            logger.info(e.getMessage());
+                            int length = e.getStackTrace().length;
+                            e.printStackTrace();
+                            if (length > 3)
+                            {
+                                String name = e.getStackTrace()[3].getClassName();
+                                int line = e.getStackTrace()[3].getLineNumber();
+                                plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "communicationconnector The " + name + " errored because of " + e.getMessage() + ". It happened at line " + line);
+                            }
+                        }
         }
     }
 
