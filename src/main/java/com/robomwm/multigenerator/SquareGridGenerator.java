@@ -21,19 +21,34 @@ public class SquareGridGenerator extends ChunkGenerator
 {
     private Logger logger;
     private Plugin plugin;
-    private int gridLength = 1;
-    private int cellSize;
+    private int gridLengthInCells = 1;
+    private int cellLengthInChunks;
     private boolean vanillaCaves;
     private boolean vanillaDecorations;
     private boolean vanillaStructures;
 
     private ArrayList<ChunkGenerator> generators = new ArrayList<>();
+    
+    private void info(String message)
+    {
+        logger.info("[" + this.getClass().getSimpleName() + "]: " + message);
+    }
+
+    private void warning(String message)
+    {
+        logger.warning("[" + this.getClass().getSimpleName() + "]: " + message);
+    }
+
+    private void severe(String message)
+    {
+        logger.severe("[" + this.getClass().getSimpleName() + "]: " + message);
+    }
 
     public SquareGridGenerator(Plugin plugin, String worldName, String id)
     {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
-        logger.info("Booting " + this.getClass().getSimpleName());
+        info("Booting");
 
         plugin.reloadConfig();
 
@@ -45,14 +60,14 @@ public class SquareGridGenerator extends ChunkGenerator
         if (section == null)
             throw new RuntimeException("[MultiGenerator] " + id + " is not an ID specified in the config.yml");
 
-        cellSize = section.getInt("cellSize");
+        cellLengthInChunks = section.getInt("cellSizeInChunks");
         vanillaCaves = section.getBoolean("vanillaCaves", false);
         vanillaDecorations = section.getBoolean("vanillaDecorations", false);
         vanillaStructures = section.getBoolean("vanillaStructures", false);
 
-        logger.info("Generating Vanilla Caves: " + vanillaCaves);
-        logger.info("Generating Vanilla Decorations: " + vanillaDecorations);
-        logger.info("Generating Vanilla Structures: " + vanillaStructures);
+        info("Generating Vanilla Caves: " + vanillaCaves);
+        info("Generating Vanilla Decorations: " + vanillaDecorations);
+        info("Generating Vanilla Structures: " + vanillaStructures);
 
         for (String generatorName : section.getStringList("generators"))
         {
@@ -64,17 +79,17 @@ public class SquareGridGenerator extends ChunkGenerator
 
             Plugin genPlugin = plugin.getServer().getPluginManager().getPlugin(pluginName);
             if (!addGenerator(genPlugin, pluginName, worldName, configId))
-                logger.severe("SurvivalGenerator: Failed to add " + pluginName);
+                severe("Failed to add " + pluginName);
         }
 
         if (generators.isEmpty())
             throw new RuntimeException("[MultiGenerator] No Generators found (or successfully loaded) for ID " + id + ", please check config.yml's " + id + " section and the generator plugins.");
 
         //Increase our square grid size until it's large enough to accommodate all generators
-        while (gridLength * gridLength < generators.size())
-            gridLength++;
-        logger.info("Mapping generator cells to a " + gridLength + "x" + gridLength + " grid.");
-        logger.info("Each cell is " + cellSize * 16 + "x" + cellSize * 16);
+        while (gridLengthInCells * gridLengthInCells < generators.size())
+            gridLengthInCells++;
+        info("Mapping generator cells to a " + gridLengthInCells + "x" + gridLengthInCells + " grid.");
+        info("Each cell is " + cellLengthInChunks + "x" + cellLengthInChunks + " chunks. (" + cellLengthInChunks * 16 + "x" + cellLengthInChunks * 16 + " blocks per cell)");
     }
 
     private boolean addGenerator(Plugin plugin, String name, String worldName, String id)
@@ -82,14 +97,14 @@ public class SquareGridGenerator extends ChunkGenerator
         if (plugin == null)
         {
             String error = "Cannot find plugin for generator " + name;
-            logger.severe(error);
+            severe(error);
             return false;
         }
 
         if (id == null)
-            logger.info("Adding generator " + name);
+            info("Adding generator " + name);
         else
-            logger.info("Adding generator " + name + " with id " + id);
+            info("Adding generator " + name + " with id " + id);
 
         return generators.add(plugin.getDefaultWorldGenerator(worldName, id));
     }
@@ -102,12 +117,12 @@ public class SquareGridGenerator extends ChunkGenerator
         chunkZ = Math.abs(chunkZ);
 
         //Convert chunk coordinates to our custom grid coordinates
-        int regionX = chunkX / cellSize;
-        int regionZ = (chunkZ / cellSize) * gridLength;
+        int regionX = chunkX / cellLengthInChunks;
+        int regionZ = (chunkZ / cellLengthInChunks) * gridLengthInCells;
         int cellIndex = (regionX + regionZ) % (generators.size());
 
         StackTraceElement e = Thread.currentThread().getStackTrace()[3];
-        logger.info("SG" + cellIndex + ": " + generators.get(cellIndex).getClass().getSimpleName() + " x:" + chunkX + " z:" + chunkZ + " regionX:" + regionX + " regionZ:" + regionZ + " trace:" + e.getClassName() + "#" + e.getMethodName() + "@" + e.getLineNumber());
+        info("SG" + cellIndex + ": " + generators.get(cellIndex).getClass().getSimpleName() + " x:" + chunkX + " z:" + chunkZ + " regionX:" + regionX + " regionZ:" + regionZ + " trace:" + e.getClassName() + "#" + e.getMethodName() + "@" + e.getLineNumber());
 
         return generators.get(cellIndex);
     }
@@ -148,7 +163,7 @@ public class SquareGridGenerator extends ChunkGenerator
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
             if (stackTrace.length > 900)
             {
-                logger.info("SG: Stack too large, terminating populator calls. Size: " + stackTrace.length);
+                info("SG: Stack too large, terminating populator calls. Size: " + stackTrace.length);
                 return;
             }
 
@@ -161,7 +176,7 @@ public class SquareGridGenerator extends ChunkGenerator
                         }
                         catch (IllegalArgumentException e)
                         {
-                            logger.info(e.getMessage());
+                            info(e.getMessage());
                             int length = e.getStackTrace().length;
                             e.printStackTrace();
                             if (length > 3)
@@ -186,7 +201,7 @@ public class SquareGridGenerator extends ChunkGenerator
 //                return false;
 //        }
 //
-//        logger.info("isParallelCapable is true!!! :o Async away!!!!");
+//        info("isParallelCapable is true!!! :o Async away!!!!");
         return false;
     }
 
