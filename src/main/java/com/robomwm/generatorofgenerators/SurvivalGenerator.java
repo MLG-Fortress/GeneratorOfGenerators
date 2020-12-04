@@ -2,6 +2,7 @@ package com.robomwm.generatorofgenerators;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.Plugin;
@@ -22,6 +23,9 @@ public class SurvivalGenerator extends ChunkGenerator
     private Plugin plugin;
     private int gridLength = 1;
     private int cellSize;
+    private boolean vanillaCaves;
+    private boolean vanillaDecorations;
+    private boolean vanillaStructures;
 
     private ArrayList<ChunkGenerator> generators = new ArrayList<>();
 
@@ -33,10 +37,22 @@ public class SurvivalGenerator extends ChunkGenerator
 
         plugin.reloadConfig();
 
-        if (id == null)
+        if (id == null || id.isEmpty())
             id = "default";
 
-        cellSize = plugin.getConfig().getConfigurationSection("cellSize").getInt(id);
+        ConfigurationSection section = plugin.getConfig().getConfigurationSection(id);
+
+        if (section == null)
+            throw new RuntimeException("[GeneratorOfGenerators] " + id + " is not an ID specified in the config.yml");
+
+        cellSize = section.getInt("cellSize");
+        vanillaCaves = section.getBoolean("vanillaCaves", false);
+        vanillaDecorations = section.getBoolean("vanillaDecorations", false);
+        vanillaStructures = section.getBoolean("vanillaStructures", false);
+
+        logger.info("Generating Vanilla Caves: " + vanillaCaves);
+        logger.info("Generating Vanilla Decorations: " + vanillaDecorations);
+        logger.info("Generating Vanilla Structures: " + vanillaStructures);
 
         for (String generatorName : plugin.getConfig().getStringList(id))
         {
@@ -52,12 +68,13 @@ public class SurvivalGenerator extends ChunkGenerator
         }
 
         if (generators.isEmpty())
-            throw new RuntimeException("No Generators Found, please check config.yml and generator plugins.");
+            throw new RuntimeException("[GeneratorOfGenerators] No Generators found (or successfully loaded) for " + id + ", please check config.yml and generator plugins.");
 
         //Increase our square grid size until it's large enough to accommodate all generators
         while (gridLength * gridLength < generators.size())
             gridLength++;
-        logger.info("Using a " + gridLength + "x" + gridLength + " grid.");
+        logger.info("Mapping generator cells to a " + gridLength + "x" + gridLength + " grid.");
+        logger.info("Each cell is " + cellSize * 16 + "x" + cellSize * 16);
     }
 
     private boolean addGenerator(Plugin plugin, String name, String worldName, String id)
@@ -180,18 +197,18 @@ public class SurvivalGenerator extends ChunkGenerator
     @Override
     public boolean shouldGenerateCaves()
     {
-        return false;
+        return vanillaCaves;
     }
 
     @Override
     public boolean shouldGenerateDecorations()
     {
-        return false;
+        return vanillaDecorations;
     }
 
     @Override
     public boolean shouldGenerateStructures()
     {
-        return false;
+        return vanillaStructures;
     }
 }
