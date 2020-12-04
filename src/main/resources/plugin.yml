@@ -1,7 +1,7 @@
-name: GeneratorOfGenerators
+name: MultiGenerator
 version: '${project.version}-${git.commit.id.abbrev}'
 author: RoboMWM
-main: com.robomwm.generatorofgenerators.GeneratorOfGenerators
+main: com.robomwm.multigenerator.MultiGenerator
 api-version: '1.16'
 load: STARTUP
 softdepend:
@@ -14,8 +14,8 @@ loadbefore:
 commands:
   getChunkAt:
     usage: /getChunkAt <world> <x> <z>
-    permission: GeneratorOfGenerators.getChunkAt
+    permission: MultiGenerator.getChunkAt
 permissions:
-  GeneratorOfGenerators.getChunkAt:
+  MultiGenerator.getChunkAt:
     default: op
 

@@ -1,4 +1,4 @@
-package com.robomwm.generatorofgenerators;
+package com.robomwm.multigenerator;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * A lot of inspiration from MetaGenerator: https://dev.bukkit.org/projects/metagenerator
  * @author RoboMWM
  */
-public class SurvivalGenerator extends ChunkGenerator
+public class SquareGridGenerator extends ChunkGenerator
 {
     private Logger logger;
     private Plugin plugin;
@@ -29,11 +29,11 @@ public class SurvivalGenerator extends ChunkGenerator
 
     private ArrayList<ChunkGenerator> generators = new ArrayList<>();
 
-    public SurvivalGenerator(Plugin plugin, String worldName, String id)
+    public SquareGridGenerator(Plugin plugin, String worldName, String id)
     {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
-        logger.info("Booting SurvivalGenerator");
+        logger.info("Booting " + this.getClass().getSimpleName());
 
         plugin.reloadConfig();
 
@@ -43,7 +43,7 @@ public class SurvivalGenerator extends ChunkGenerator
         ConfigurationSection section = plugin.getConfig().getConfigurationSection(id);
 
         if (section == null)
-            throw new RuntimeException("[GeneratorOfGenerators] " + id + " is not an ID specified in the config.yml");
+            throw new RuntimeException("[MultiGenerator] " + id + " is not an ID specified in the config.yml");
 
         cellSize = section.getInt("cellSize");
         vanillaCaves = section.getBoolean("vanillaCaves", false);
@@ -54,7 +54,7 @@ public class SurvivalGenerator extends ChunkGenerator
         logger.info("Generating Vanilla Decorations: " + vanillaDecorations);
         logger.info("Generating Vanilla Structures: " + vanillaStructures);
 
-        for (String generatorName : plugin.getConfig().getStringList(id))
+        for (String generatorName : section.getStringList("generators"))
         {
             String[] splitName = generatorName.split(",");
             String pluginName = splitName[0];
@@ -68,7 +68,7 @@ public class SurvivalGenerator extends ChunkGenerator
         }
 
         if (generators.isEmpty())
-            throw new RuntimeException("[GeneratorOfGenerators] No Generators found (or successfully loaded) for " + id + ", please check config.yml and generator plugins.");
+            throw new RuntimeException("[MultiGenerator] No Generators found (or successfully loaded) for ID " + id + ", please check config.yml's " + id + " section and the generator plugins.");
 
         //Increase our square grid size until it's large enough to accommodate all generators
         while (gridLength * gridLength < generators.size())

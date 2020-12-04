@@ -1,4 +1,4 @@
-package com.robomwm.generatorofgenerators;
+package com.robomwm.multigenerator;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -15,17 +15,17 @@ import java.util.List;
  *
  * @author RoboMWM
  */
-public class GeneratorOfGenerators extends JavaPlugin
+public class MultiGenerator extends JavaPlugin
 {
     @Override
     public void onEnable()
     {
         List<String> defaultGenerators = new ArrayList<>();
         defaultGenerators.add("CityWorld");
-        defaultGenerators.add("CityWorld,PILLARS");
+        defaultGenerators.add("CityWorld,METRO");
         defaultGenerators.add("WellWorld");
         getConfig().addDefault("default.generators", defaultGenerators);
-        getConfig().addDefault("default.cellSizeInChunks", 64);
+        getConfig().addDefault("default.cellLengthInChunks", 64);
         getConfig().addDefault("default.vanillaCaves", false);
         getConfig().addDefault("default.vanillaDecorators", false);
         getConfig().addDefault("default.vanillaStructures", false);
@@ -36,16 +36,15 @@ public class GeneratorOfGenerators extends JavaPlugin
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id)
     {
-        String[] worldNameSplit = worldName.split("_");
-        String suffix = worldNameSplit[worldNameSplit.length - 1];
-        switch (suffix)
+        if (id == null)
+            return new SquareGridGenerator(this, worldName, id);
+
+        switch (id)
         {
-            case "nether":
-                return new SurvivalGenerator(this, worldName, id); //TODO
-            case "end":
-                return new SurvivalGenerator(this, worldName, id); //TODO
+            case "SequentialGrid":
+                return new SquareGridGenerator(this, worldName, id);
             default:
-                return new SurvivalGenerator(this, worldName, id);
+                return new SquareGridGenerator(this, worldName, id);
         }
     }
 
