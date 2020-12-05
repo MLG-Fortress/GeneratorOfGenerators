@@ -60,7 +60,7 @@ public class SquareGridGenerator extends ChunkGenerator
         if (section == null)
             throw new RuntimeException("[MultiGenerator] " + id + " is not an ID specified in the config.yml");
 
-        cellLengthInChunks = section.getInt("cellSizeInChunks");
+        cellLengthInChunks = section.getInt("cellLengthInChunks");
         vanillaCaves = section.getBoolean("vanillaCaves", false);
         vanillaDecorations = section.getBoolean("vanillaDecorations", false);
         vanillaStructures = section.getBoolean("vanillaStructures", false);
